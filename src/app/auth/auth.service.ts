@@ -21,7 +21,7 @@ export class AuthService {
   logout(): Observable<boolean> {
     return of(false).pipe(
       delay(500),
-      tap(val => this.isLogged = false)
+      tap(val => this.isLogged = val)
     );
   }
 
