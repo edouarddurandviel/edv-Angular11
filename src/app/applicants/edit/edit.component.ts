@@ -15,8 +15,8 @@ import {  Router, ActivatedRoute} from '@angular/router';
 })
 export class EditComponent implements OnInit{
 
-  dataSource: IntApplicants;
-
+  dataSource!: IntApplicants;
+  currentRoute!: number;
 
   constructor(
     private service: ApplicantsService,
@@ -24,37 +24,37 @@ export class EditComponent implements OnInit{
     private router: Router,
     private route: ActivatedRoute,
     private messageService: MessageService
-    ) { }
+  ) {
+    this.currentRoute = this.getRoute(this.route)!
+  }
 
-    get theId() {
-      return Number(this.profileForm.get('theId'));
-    }
-    get firstName() {
-      return this.profileForm.get('firstName');
-    }
-    get lastName() {
-      return this.profileForm.get('lastName');
-    }
-    get appTitle() {
-      return this.profileForm.get('appTitle');
-    }
+  get theId() {
+    return Number(this.profileForm.get('theId'));
+  }
+  get firstName() {
+    return this.profileForm.get('firstName');
+  }
+  get lastName() {
+    return this.profileForm.get('lastName');
+  }
+  get appTitle() {
+    return this.profileForm.get('appTitle');
+  }
 
-    currentId: number;
-    appliId = '';
-    submitted = false;
-    
-    // reactive form
-    profileForm = this.fb.group({
-                    theId: [''],
-                    firstName: ['', Validators.required],
-                    lastName: ['', Validators.required],
-                    appTitle: ['', Validators.required],
-                  });
+  currentId!: number;
+  appliId = '';
+  submitted = false;
+  // reactive form
+  profileForm = 
+    this.fb.group({
+      theId: [''],
+      firstName: ['', Validators.required],
+      lastName: ['', Validators.required],
+      appTitle: ['', Validators.required],
+    });
 
-    ngOnInit(): void {
-
-    // init defaut value
-    this.service.getApplicant(Number(this.route.snapshot.paramMap.get('id')))
+  ngOnInit(): void {
+    this.service.getApplicant(this.currentRoute)
     .subscribe(dataSource => {
       this.profileForm.patchValue({
           theId: dataSource.id,
@@ -63,32 +63,31 @@ export class EditComponent implements OnInit{
           appTitle: dataSource.appTitle,
       });
     });
+  }
 
+  getRoute(route: ActivatedRoute){
+    const id = route.snapshot.paramMap.get('id');
+    return id === null ? undefined : parseInt(id, 10);
   }
 
   update() {
-
-    const inputValues = {
-      firstName: this.profileForm.value.firstName,
-      lastName: this.profileForm.value.lastName,
-      appTitle: this.profileForm.value.appTitle,
-    };
-
-    this.service.updateApplicant(this.profileForm.value.theId, inputValues).subscribe(
-      response => {
-        console.log(response);
+    this.service.updateApplicant(this.profileForm.value.theId, {
+        firstName: this.profileForm.value.firstName,
+        lastName: this.profileForm.value.lastName,
+        appTitle: this.profileForm.value.appTitle,
+      }).subscribe(() => {
         this.submitted = true;
-        // server respond successfully => change page
-        this.goTo();
-      },
-      error => {
-        console.log(error);
+          this.messageService.add(`Applicant submitted successfully !`);
+          this.goTo();
+      }, (error) => {
+          this.messageService.add(`Applicant. Some error occured ${error}`);
+      }, () => {
+         this.messageService.add(`Applicant submittion completed`);
       }
     );
+  }
 
-}
-
-    goTo() {
-      this.router.navigate(['/applicants']);
-    }
+  goTo() {
+    this.router.navigate(['/applicants']);
+  }
 }

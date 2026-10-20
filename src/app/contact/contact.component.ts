@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
 })
 export class ContactComponent implements OnInit{
 
-  isLogged: boolean;
+  isLogged!: boolean;
 
 
   constructor(private authService: AuthService, private route: Router) { }
@@ -22,7 +22,7 @@ export class ContactComponent implements OnInit{
   logout(){
     this.authService.logout().subscribe(
       () => {
-        if ( !this.authService.isLogged ){
+        if (!this.authService.isLogged){
           this.route.navigate(['/']);
         }
       }

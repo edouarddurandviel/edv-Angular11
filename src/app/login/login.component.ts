@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
 })
 export class LoginComponent implements OnInit {
 
-  isLogged: boolean;
+  isLogged!: boolean;
 
   constructor(private authService: AuthService, private route: Router) { }
 
@@ -18,13 +18,11 @@ export class LoginComponent implements OnInit {
   }
 
   login(){
-    this.authService.login().subscribe(
-      () => {
+    this.authService.login().subscribe(() => {
         if (this.authService.isLogged){
           this.route.navigate(['/contact-page']);
       }
-    }
-    );
+    });
   }
 
   logout(){

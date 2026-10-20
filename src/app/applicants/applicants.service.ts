@@ -13,17 +13,15 @@ import { Applicants } from './applicants';
 })
 export class ApplicantsService {
 
-  headers: Headers;
-
-  constructor(private http: HttpClient, private messageService: MessageService) { }
-
-  httpOptions = {
+  private baseUrl = `http://localhost:3000`;
+  private httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json'})
   };
 
+  constructor(private http: HttpClient, private messageService: MessageService) {}
 
   getApplicantsList(): Observable<IntApplicants> {
-    const applicantsUrl = `http://localhost:3000/applicants`;
+    const applicantsUrl = `${this.baseUrl}/applicants`;
     return this.http.get<IntApplicants>(applicantsUrl)
     .pipe(
       catchError(this.handleError<IntApplicants>('applicants'))
@@ -31,7 +29,7 @@ export class ApplicantsService {
   }
 
   getApplicant(id: number): Observable<IntApplicants> {
-    const applicantsUrl = `http://localhost:3000/applicants/${id}`;
+    const applicantsUrl = `${this.baseUrl}/applicants/${id}`;
     return this.http.get<IntApplicants>(applicantsUrl)
     .pipe(
       catchError(this.handleError<IntApplicants>('applicants'))
@@ -39,7 +37,7 @@ export class ApplicantsService {
   }
 
   updateApplicant(id: number, model: Applicants): Observable<Applicants> {
-    const applicantsUrl = `http://localhost:3000/applicants/${id}`;
+    const applicantsUrl = `${this.baseUrl}/applicants/${id}`;
     return this.http.put<Applicants>(applicantsUrl, model, this.httpOptions)
     .pipe(
       catchError(this.handleError('updateApplicant', model))
@@ -47,7 +45,7 @@ export class ApplicantsService {
   }
 
   addApplicant(model: Applicants): Observable<Applicants> {
-    const applicantsUrl = `http://localhost:3000/applicants`;
+    const applicantsUrl = `${this.baseUrl}/applicants`;
     return this.http.post<Applicants>(applicantsUrl, model, this.httpOptions)
     .pipe(
       catchError(this.handleError('addApplicant', model))
@@ -55,14 +53,13 @@ export class ApplicantsService {
   }
 
   deleteApplicant(id: number): Observable<{}> {
-    const applicantsUrl = `http://localhost:3000/applicants/${id}`;
+    const applicantsUrl = `${this.baseUrl}/applicants/${id}`;
     return this.http.delete(applicantsUrl, this.httpOptions);
   }
 
 
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
-      console.error(error); // log to console instead
       this.log(`${operation} failed: ${error.message}`);
       return of(result as T);
     };
@@ -70,19 +67,12 @@ export class ApplicantsService {
 
   private handleErrors(error: HttpErrorResponse) {
     if (error.error instanceof ErrorEvent) {
-      console.error('An error occurred:', error.error.message);
+      return throwError(`An error occurred: ${error.error.message}`);
     } else {
-      // The response body may contain clues as to what went wrong.
-      console.error(
-        `Backend returned code ${error.status}, ` +
-        `body was: ${error.error}`);
+      return throwError(`Some error occured. Please try again later. ${error}`);
     }
-    // Return an observable with a user-facing error message.
-    return throwError(
-      'Something bad happened; please try again later.');
   }
 
-   /** message with the MessageService */
    private log(message: string) {
     this.messageService.add(`Applicant: ${message}`);
   }

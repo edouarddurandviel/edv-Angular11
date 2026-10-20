@@ -9,7 +9,7 @@ export class AuthService {
 
 
   isLogged = false;
-  redirectUrl: string;
+  redirectUrl!: string;
 
   login(): Observable<boolean> {
     return of(true).pipe(

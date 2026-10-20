@@ -3,40 +3,43 @@ import { ApplicantsService } from '../applicants.service';
 import { IntApplicants } from '../applicants.interface';
 import {  Router} from '@angular/router';
 
-const tPath = `./`;
+
 
 @Component ({
   selector: 'app-applicants',
-  templateUrl: `${tPath}/applicants.component.html`,
-  styleUrls: [`${tPath}/applicants.component.scss`]
+  templateUrl: `./applicants.component.html`,
+  styleUrls: [`./applicants.component.scss`]
 })
 export class ApplicantsComponent implements OnInit {
+
+  dataSource!: IntApplicants;
+  error!: any;
 
   constructor(
     private service: ApplicantsService,
     private router: Router,
-    ) { }
+    ) {}
 
-  dataSource: IntApplicants;
-  submitted = false;
+  
 
   ngOnInit(): void {
-      this.service.getApplicantsList().subscribe(
-        dataSource => this.dataSource = dataSource
-        );
+     this.getApplicants()
+  }
+
+  getApplicants(){
+     this.service.getApplicantsList().subscribe(
+        (dataSource) => this.dataSource = dataSource
+      );
   }
 
   delete(id: number) {
     this.service.deleteApplicant(id).subscribe(
-      response => {
-        console.log(response);
-        this.submitted = true;
-        // server respond successfully
-        // TODO: remplacer par autre chose
-        this.ngOnInit();
+      (response) => { 
+        response && 
+        this.getApplicants() 
       },
-      error => {
-        console.log(error);
+      (error) => {
+        this.error = error
       }
     );
 
